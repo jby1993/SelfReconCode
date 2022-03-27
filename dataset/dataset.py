@@ -6,93 +6,6 @@ import os.path as osp
 from glob import glob
 import utils
 
-class RigidDataset(torch.utils.data.Dataset):
-	# get a batch_size continuous frame sequence
-	def __init__(self,data_root,conds_lens={}):
-		self.root=data_root
-		self.read_data()
-		self.require_albedo=False
-		self.conds=[]
-		self.cond_ns=[]
-		# cond parameter needs optimization by default
-		for name,length in conds_lens.items():
-			# cond=torch.zeros(self.frame_num,length,requires_grad=True)			
-			# torch.nn.init.normal_(cond, mean=0., std=0.001)
-			cond=((0.1*torch.randn(length,self.frame_num//5)).matmul(utils.DCTSpace(self.frame_num//5,self.frame_num))).transpose(0,1)
-			cond.requires_grad_()
-			self.conds.append(cond)
-			self.cond_ns.append(name)
-
-	def read_data(self):
-		candidate_ext=['.jpg','.png']
-		imgs=[]
-		for ext in candidate_ext:
-			imgs.extend(glob(osp.join(self.root,'imgs/*'+ext)))
-		imgs.sort(key=lambda x: int(osp.basename(x).split('.')[0]))
-		self.frame_num=len(imgs)
-		self.img_ns=imgs
-
-		masks=[]
-		for ext in candidate_ext:
-			masks.extend(glob(osp.join(self.root,'masks/*'+ext)))
-		masks.sort(key=lambda x: int(osp.basename(x).split('.')[0]))
-		self.mask_ns=masks
-		assert(len(self.mask_ns)==self.frame_num)
-		for ind,(img_n,mask_n) in enumerate(zip(self.img_ns,self.mask_ns)):
-			assert(ind==int(osp.basename(img_n).split('.')[0]))
-			assert(ind==int(osp.basename(mask_n).split('.')[0]))
-			
-		self.H,self.W,_=cv2.imread(self.mask_ns[0]).shape
-		data=np.load(osp.join(self.root,'frame_RTs.npz'))
-		self.Rs=torch.from_numpy(data['Rs'].astype(np.float32)).view(-1,3,3)
-		self.trans=torch.from_numpy(data['Ts'].astype(np.float32)).view(-1,3)
-		data=np.load(osp.join(self.root,'camera.npz'))
-		self.camera_params={'focal_length':torch.tensor(np.array([data['fx'],data['fy']]).astype(np.float32)), \
-							'princeple_points':torch.tensor(np.array([data['cx'],data['cy']]).astype(np.float32)), \
-							'cam2world_coord_quat':torch.from_numpy(data['quat'].astype(np.float32)).view(-1), \
-							'world2cam_coord_trans':torch.from_numpy(data['T'].astype(np.float32)).view(-1)}
-	def opt_camera_params(self,conf):
-		if type(conf)==bool:
-			self.camera_params['focal_length'].requires_grad_(conf)
-			self.camera_params['princeple_points'].requires_grad_(conf)
-			self.camera_params['cam2world_coord_quat'].requires_grad_(conf)
-			self.camera_params['world2cam_coord_trans'].requires_grad_(conf)
-		else:
-			self.camera_params['focal_length'].requires_grad_(conf.get_bool('focal_length'))
-			self.camera_params['princeple_points'].requires_grad_(conf.get_bool('princeple_points'))
-			self.camera_params['cam2world_coord_quat'].requires_grad_(conf.get_bool('quat'))
-			self.camera_params['world2cam_coord_trans'].requires_grad_(conf.get_bool('T'))
-
-	def learnable_weights(self):
-		ws=[]
-		ws.extend([cond for cond in self.conds if cond.requires_grad])
-		ws.extend([v for k,v in self.camera_params.items() if v.requires_grad])
-		ws.extend([v for v in [self.Rs,self.trans] if v.requires_grad])
-		return ws
-
-	def __len__(self):
-		return self.frame_num
-	def __getitem__(self, idx):
-		# convert to [-1.,1.] to keep consistent with render net tanh output
-		img=torch.from_numpy((cv2.imread(self.img_ns[idx]).astype(np.float32)/255.-0.5)*2).view(self.H,self.W,3)
-		mask=(torch.from_numpy(cv2.imread(self.mask_ns[idx]))>0).view(self.H,self.W,-1).any(-1).float()
-		if self.require_albedo:
-			albedo=torch.from_numpy((cv2.imread(osp.join(self.root,'albedos/%d.png'%idx)).astype(np.float32)/255.-0.5)*2.).view(self.H,self.W,3)
-		else:
-			albedo=1.
-		return idx,img,mask,albedo
-	# this function is a patch for __getitem__, it seems that dataloader cannot fetch data with requires_grad=True, because of stack(out=out)
-	def get_grad_parameters(self,idxs,device):
-		conds=[cond[idxs].to(device) for cond in self.conds]
-		if len(conds):
-			return self.Rs[idxs].to(device),self.trans[idxs].to(device),*conds
-		else:
-			return self.Rs[idxs].to(device),self.trans[idxs].to(device),None
-
-	def get_camera_parameters(self,N,device):
-		return (self.camera_params['focal_length'].to(device).view(1,2).expand(N,2),self.camera_params['princeple_points'].to(device).view(1,2).expand(N,2), \
-			utils.quat2mat(self.camera_params['cam2world_coord_quat'].to(device).view(1,4)).expand(N,3,3),self.camera_params['world2cam_coord_trans'].to(device).view(1,3).expand(N,3),self.H,self.W)
-
 class SceneDataset(torch.utils.data.Dataset):
 	# get a batch_size continuous frame sequence
 	def __init__(self,data_root, conds_lens={}):
@@ -328,18 +241,6 @@ def getDatasetAndLoader(root,conds_lens,batch_size,shuffle,num_workers,opt_pose,
 	dataset=SceneDataset(root,conds_lens)
 	if opt_pose:
 		dataset.poses.requires_grad_(True)
-	if opt_trans:
-		dataset.trans.requires_grad_(True)
-	dataset.opt_camera_params(opt_camera)
-	# sampler=ClipSampler(dataset,batch_size,shuffle)
-	sampler=RandomSampler(dataset,1,shuffle)
-	dataloader=torch.utils.data.DataLoader(dataset,batch_size,sampler=sampler,num_workers=num_workers)
-	return dataset,dataloader
-
-def getRigidDatasetAndLoader(root,conds_lens,batch_size,shuffle,num_workers,opt_R,opt_trans,opt_camera):
-	dataset=RigidDataset(root,conds_lens)
-	if opt_R:
-		dataset.Rs.requires_grad_(True)
 	if opt_trans:
 		dataset.trans.requires_grad_(True)
 	dataset.opt_camera_params(opt_camera)

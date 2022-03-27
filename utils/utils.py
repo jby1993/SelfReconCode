@@ -168,17 +168,8 @@ def compute_cardinal_rays(deformer,ps,rays,defconds,batch_inds,ratio,phase):
 	crays=crays/crays.norm(dim=1,keepdim=True)
 	return crays,ds
 
-def compute_netRender_color(net,ps,ds,ns,vs,features,framefeatures,ratio,idr_like_cond,idr_xs_render):
-	if hasattr(net,'enable_px'):
-		if hasattr(net,'enable_framefeature'):
-			return net(ps, ds, ns, vs, features,framefeatures,ratio)
-		else:
-			return net(ps, ds, ns, vs, features if idr_like_cond else framefeatures,ratio)
-	else:
-		if hasattr(net,'enable_framefeature'):
-			return net(ds if idr_xs_render else ps, ns, vs, features, framefeatures,ratio)
-		else:
-			return net(ds if idr_xs_render else ps, ns, vs, features if idr_like_cond else framefeatures,ratio)
+def compute_netRender_color(net,ps,ds,ns,vs,features,framefeatures,ratio):
+	return net(ps, ns, vs, features,ratio)
 
 # verts(N,vnum,3), faces(fnum,3) or (N,fnum,3)
 def compute_face_areas(verts,faces):
@@ -244,24 +235,8 @@ from pytorch3d.renderer import (
 from model.CameraMine import RectifiedPerspectiveCameras
 
 def set_hierarchical_config(conf,name,optNet,dataloader,resolutions):
-	if 'point_render' in conf.get_config('train.'+name):
-		batch_size=conf.get_int('train.'+name+'.point_render.batch_size')
-	else:
-		batch_size=conf.get_int('train.'+name+'.batch_size')
+	batch_size=conf.get_int('train.'+name+'.point_render.batch_size')
 	dataloader=torch.utils.data.DataLoader(dataloader.dataset,batch_size,sampler=dataloader.sampler,num_workers=dataloader.num_workers)
-	# sigma=conf.get_float('train.'+name+'.sigma')	
-	# optNet.next_remesh_intersect=conf.get_int('train.'+name+'.remesh_intersect')
-	# optNet.next_conf=conf.get_config('loss_'+name)
-	# optNet.next_raset = RasterizationSettings(
-	# 	image_size=(optNet.maskRender.rasterizer.raster_settings.image_size[0],optNet.maskRender.rasterizer.raster_settings.image_size[1]), 
-	# 	blur_radius=np.log(1. / 1e-4 - 1.)*sigma, 
-	# 	# bin_size=0,
-	# 	faces_per_pixel=conf.get_int('train.'+name+'.faces_per_pixel'),
-	# 	perspective_correct=True,
-	# 	clip_barycentric_coords=False,
-	# 	cull_backfaces=optNet.maskRender.rasterizer.raster_settings.cull_backfaces
-	# )
-	# optNet.next_shaderset = BlendParams(sigma=sigma)
 	optNet.next_conf=conf.get_config('loss_'+name)
 	optNet.next_train_conf=conf.get_config('train.'+name)
 	engine = Seg3dLossless(
