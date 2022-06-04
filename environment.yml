@@ -63,15 +63,12 @@ dependencies:
   - zstd=1.4.9=haebb681_0
   - pip:
     - cycler==0.11.0
-    - fastminv==0.0.0
     - fonttools==4.31.2
     - fvcore==0.1.5.post20220305
     - h5py==3.6.0
-    - interplate==0.0.0
     - iopath==0.1.9
     - kiwisolver==1.4.0
     - matplotlib==3.5.1
-    - mcgpu==0.0.0
     - opencv-python==4.5.5.64
     - openmesh==1.2.1
     - packaging==21.3
@@ -79,8 +76,7 @@ dependencies:
     - pycocotools==2.0.4
     - pyhocon==0.3.59
     - pyparsing==2.4.7
-    - python-dateutil==2.8.2
-    - pytorch3d==0.4.0
+    - python-dateutil==2.8.2    
     - pyyaml==6.0
     - tabulate==0.8.9
     - termcolor==1.1.0
@@ -88,4 +84,3 @@ dependencies:
     - tqdm==4.63.0
     - trimesh==3.10.5
     - yacs==0.1.8
-prefix: /home/jiangboyi/miniconda3/envs/SelfRecon

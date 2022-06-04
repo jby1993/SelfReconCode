@@ -17,8 +17,21 @@ conda env create -f environment.yml
 conda activate SelfRecon
 bash install.sh
 ```
+
+    
+It is recommended to install pytorch3d 0.4.0 from source. 
+```bash
+wget -O pytorch3d-0.4.0.zip https://github.com/facebookresearch/pytorch3d/archive/refs/tags/v0.4.0.zip
+unzip pytorch3d-0.4.0.zip
+cd pytorch3d-0.4.0 && python setup.py install && cd ..
+```
+
+To download the [SMPL](https://smpl.is.tue.mpg.de/) models from [here](https://mailustceducn-my.sharepoint.com/:f:/g/personal/jby1993_mail_ustc_edu_cn/EqosuuD2slZCuZeVI2h4RiABguiaB4HkUBusnn_0qEhWjQ?e=c6r4KS) and move pkls to smpl_pytorch/model.
+
 ## Run on PeopleSnapshot Dataset
 ### Prepross
+The preprocessing of PeopleSnapshot is described here, and you can follow the method to process your own data.
+
 Download the [Dataset](https://graphics.tu-bs.de/people-snapshot) and unzip it to some ROOT. Run the following code to extract data for female-3-casual, for example.
 ```bash
 python people_snapshot_process.py --root $ROOT/people_snapshot_public/female-3-casual --save_root $ROOT/female-3-casual
@@ -31,7 +44,7 @@ python generate_boxs.py --data $ROOT/female-3-casual/imgs
 cd $ROOT1
 python generate_normals.py --imgpath $ROOT/female-3-casual/imgs
 ```
-Then, run SelfRecon with the following code:
+Then, run SelfRecon with the following code, this may take one day to finish:
 ```bash
 CUDA_VISIBLE_DEVICES=0 python train.py --gpu-ids 0 --conf config.conf --data $ROOT/female-3-casual --save-folder result
 ```
@@ -42,8 +55,22 @@ The results locate in $ROOT/female-3-casual/result
 ## Inference
 Run the following code to generate rendered meshes and images.
 ```bash
-CUDA_VISIBLE_DEVICES=3 python infer.py --gpu-ids 0 --rec-root $ROOT/female-3-casual/result/ --C
+CUDA_VISIBLE_DEVICES=0 python infer.py --gpu-ids 0 --rec-root $ROOT/female-3-casual/result/ --C
 ```
+
+## Dataset
+The processed dataset, our trained models and some reconstruction results can be downloaded via the [link](https://mailustceducn-my.sharepoint.com/:f:/g/personal/jby1993_mail_ustc_edu_cn/EsSsDtUBYJVLvY21Wk2K_gQBuOWgCKFGGxr2xqheS-0ORw?e=Rda2HX), you can download and unzip some smartphone data, like CHH_female.zip, in $ROOT, and train directly with:
+```bash
+CUDA_VISIBLE_DEVICES=0 python train.py --gpu-ids 0 --conf config.conf --data $ROOT/CHH_female --save-folder result
+```
+And you can unzip CHH_female_model.zip in $ROOT/CHH_female and run:
+
+```bash
+CUDA_VISIBLE_DEVICES=0 python infer.py --gpu-ids 0 --rec-root $ROOT/CHH_female/trained/ --C
+```
+to check the results of our trained model in $ROOT/CHH_female/trained.
+
+Note: If you want to train the synthetic data, config_loose.conf is prefered.
 ## Acknowledgement
 
 Here are some great resources we benefit or utilize from:
