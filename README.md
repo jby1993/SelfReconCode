@@ -74,6 +74,7 @@ Note: If you want to train the synthetic data, config_loose.conf is prefered.
 Here are some great resources we benefit or utilize from:
 - [MarchingCubes_CppCuda](https://github.com/WanquanF/MarchingCubes_CppCuda) supplies the GPU MC module (MCGpu)
 - [MonoPort](https://github.com/Project-Splinter/MonoPort) and [ImplicitSegCUDA](https://github.com/Project-Splinter/ImplicitSegCUDA/tree/master/implicit_seg/cuda) constructed our Marching Cubes accelerating (MCAcc)
+- [VideoAvatar](https://graphics.tu-bs.de/people-snapshot) for SMPL initialization
 - [SMPL](https://smpl.is.tue.mpg.de/) for Parametric Body Representation
 - [IDR](https://github.com/lioryariv/idr) for Neural Implicit Reconstruction
 - [PyTorch3D](https://github.com/facebookresearch/pytorch3d) for Differential Explicit Rendering
