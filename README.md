@@ -1,11 +1,10 @@
 # SelfRecon: Self Reconstruction Your Digital Avatar from Monocular Video
 ### | [Project Page](https://jby1993.github.io/SelfRecon/) | [Paper](https://arxiv.org/abs/2201.12792) | 
-![](asset/avatars.png)
-This repository contains a pytorch implementation of "[SelfRecon: Self Reconstruction Your Digital Avatar from Monocular Video (CVPR 2022)](https://arxiv.org/abs/2201.12792)".<br/>
-Authors: Boyi Jiang, Yang Hong, [Hujun Bao](http://www.cad.zju.edu.cn/home/bao/), [Juyong Zhang](http://staff.ustc.edu.cn/~juyong/).
+This repository contains a pytorch implementation of "[SelfRecon: Self Reconstruction Your Digital Avatar from Monocular Video (CVPR 2022, Oral)](https://arxiv.org/abs/2201.12792)".<br/>
+Authors: Boyi Jiang, [Yang Hong](https://crishy1995.github.io/), [Hujun Bao](http://www.cad.zju.edu.cn/home/bao/), [Juyong Zhang](http://staff.ustc.edu.cn/~juyong/).
 
 This code is protected under patent. It can be only used for research purposes. 
-
+![](asset/avatars.png)
 ## Requirements
 - Python 3
 - Pytorch3d (0.4.0, some compatibility issues may occur in higher versions of pytorch3d) 
@@ -29,9 +28,8 @@ cd pytorch3d-0.4.0 && python setup.py install && cd ..
 To download the [SMPL](https://smpl.is.tue.mpg.de/) models from [here](https://mailustceducn-my.sharepoint.com/:f:/g/personal/jby1993_mail_ustc_edu_cn/EqosuuD2slZCuZeVI2h4RiABguiaB4HkUBusnn_0qEhWjQ?e=c6r4KS) and move pkls to smpl_pytorch/model.
 
 ## Run on PeopleSnapshot Dataset
-### Prepross
-The preprocessing of PeopleSnapshot is described here, and you can follow the method to process your own data.
-
+The preprocessing of PeopleSnapshot is described here. If you want to optimize your own data, you can run [VideoAvatar](https://graphics.tu-bs.de/people-snapshot) to get the initial SMPL estimation, then follow the preprocess. Or, you can use your own SMPL initialization and normal prediction method then use SelfRecon to reconstruct.
+### Preprocess
 Download the [Dataset](https://graphics.tu-bs.de/people-snapshot) and unzip it to some ROOT. Run the following code to extract data for female-3-casual, for example.
 ```bash
 python people_snapshot_process.py --root $ROOT/people_snapshot_public/female-3-casual --save_root $ROOT/female-3-casual
@@ -99,3 +97,6 @@ This research was supported by National Natural Science Foundation of China (No.
       </div>
   </div>
 
+
+## License
+Academic or non-profit organization noncommercial research use only.
