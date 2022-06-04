@@ -1,6 +1,6 @@
 # SelfRecon: Self Reconstruction Your Digital Avatar from Monocular Video
 ### | [Project Page](https://jby1993.github.io/SelfRecon/) | [Paper](https://arxiv.org/abs/2201.12792) | 
-![](doc/teaser.png)
+![](asset/avatars.png)
 This repository contains a pytorch implementation of "[SelfRecon: Self Reconstruction Your Digital Avatar from Monocular Video (CVPR 2022)](https://arxiv.org/abs/2201.12792)".<br/>
 Authors: Boyi Jiang, Yang Hong, [Hujun Bao](http://www.cad.zju.edu.cn/home/bao/), [Juyong Zhang](http://staff.ustc.edu.cn/~juyong/).
 

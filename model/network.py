@@ -316,7 +316,7 @@ class OptimNetwork(nn.Module):
 			poses,trans,d_cond,rendcond=self.dataset.get_grad_parameters(frame_ids,device)
 			defTmpVs=self.deformer(TmpVs[None,:,:].expand(N,-1,3),[d_cond,[poses,trans]],ratio=ratio)
 			defMeshes=Meshes(verts=[vs.view(TmpVnum,3) for vs in torch.split(defTmpVs,1)],faces=[Tmpfs for _ in range(N)],textures=TexturesVertex([torch.ones_like(TmpVs) for _ in range(N)]))
-
+			defMeshVs = defTmpVs.detach().cpu().numpy()
 			imgs,frags=self.maskRender(defMeshes)			
 			if gts:
 				masks=(frags.pix_to_face>=0).float()[...,0]
@@ -345,7 +345,7 @@ class OptimNetwork(nn.Module):
 			rays=cameras.view_rays(torch.cat([col_inds.view(-1,1),row_inds.view(-1,1),torch.ones_like(col_inds.view(-1,1))],dim=-1).float())
 			defconds=[d_cond.detach(),[poses.detach(),trans.detach()]]
 		if notcolor:
-			return None,imgs,def1imgs
+			return None,imgs,def1imgs,defMeshVs
 		tcolors=[]
 		print('draw %d points'%rays.shape[0])
 		for ind,(rays_,initTmpPs_,batch_inds_) in enumerate(zip(torch.split(rays,10000),torch.split(initTmpPs,10000),torch.split(batch_inds,10000))):
@@ -369,7 +369,7 @@ class OptimNetwork(nn.Module):
 			colors[~masks]=gts['image'][~masks][:,:3]*255.
 
 		colors=colors.cpu().numpy().astype(np.uint8)
-		return colors,imgs,def1imgs
+		return colors,imgs,def1imgs,defMeshVs
 
 	def save_debug(self,TmpVs,Tmpfs,defMeshes,offset,masks,gtMs,mgtMs,gtCs,batch_inds,row_inds,col_inds,initTmpPs,defconds,rendcond,ratio):
 		if self.root is None:

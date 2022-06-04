@@ -51,6 +51,13 @@ resolutions = [
 	(112+1, 160+1, 64+1),
 	(224+1, 320+1, 128+1),
 ]
+# resolutions = [
+# 	(18+1, 24+1, 12+1),
+# 	(36+1, 48+1, 24+1),
+# 	(72+1, 96+1, 48+1),
+# 	(144+1, 192+1, 96+1),
+# 	(288+1, 384+1, 192+1),
+# ]
 
 config=ConfigFactory.parse_file(osp.join(args.rec_root,'config.conf'))
 device=args.gpu_ids[0]
@@ -122,7 +129,6 @@ if not args.nV:
 errors={}
 errors['maskE']=-1.*np.ones((len(dataset)))
 gts={}
-
 for data_index, (frame_ids, outs) in enumerate(dataloader):
 	if data_index*batch_size > args.frames if args.frames>=0 else False:
 		break
@@ -136,8 +142,9 @@ for data_index, (frame_ids, outs) in enumerate(dataloader):
 	gts['mask']=masks.to(device)
 	if args.C:
 		gts['image']=(imgs.to(device)+1.)/2.
-	colors,imgs,def1imgs=optNet.infer(TmpVs,Tmpfs,dataset.H,dataset.W,ratio,frame_ids,args.nColor,gts)
-	for fid,img,def1img in zip(frame_ids.cpu().numpy().reshape(-1),imgs,def1imgs):
+	colors,imgs,def1imgs,defVs=optNet.infer(TmpVs,Tmpfs,dataset.H,dataset.W,ratio,frame_ids,args.nColor,gts)	
+	for fid,img,def1img,defV in zip(frame_ids.cpu().numpy().reshape(-1),imgs,def1imgs,defVs):
+		np.save(osp.join(args.rec_root,'meshs/%d.npy'%fid),defV.reshape(-1,3))
 		if not args.nV:
 			writer_meshs.write(img[:,:,[2,1,0]])
 			writer_def1meshs.write(def1img[:,:,[2,1,0]])
