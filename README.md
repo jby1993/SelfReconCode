@@ -57,7 +57,7 @@ CUDA_VISIBLE_DEVICES=0 python infer.py --gpu-ids 0 --rec-root $ROOT/female-3-cas
 ```
 
 ## Dataset
-The processed dataset, our trained models and some reconstruction results can be downloaded via the [link](https://mailustceducn-my.sharepoint.com/:f:/g/personal/jby1993_mail_ustc_edu_cn/EsSsDtUBYJVLvY21Wk2K_gQBuOWgCKFGGxr2xqheS-0ORw?e=Rda2HX), you can download and unzip some smartphone data, like CHH_female.zip, in $ROOT, and train directly with:
+The processed dataset, our trained models, some reconstruction results and textured meshes can be downloaded via the [link](https://mailustceducn-my.sharepoint.com/:f:/g/personal/jby1993_mail_ustc_edu_cn/EsSsDtUBYJVLvY21Wk2K_gQBuOWgCKFGGxr2xqheS-0ORw?e=Rda2HX), you can download and unzip some smartphone data, like CHH_female.zip, in $ROOT, and train directly with:
 ```bash
 CUDA_VISIBLE_DEVICES=0 python train.py --gpu-ids 0 --conf config.conf --data $ROOT/CHH_female --save-folder result
 ```
