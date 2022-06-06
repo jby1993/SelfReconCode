@@ -3,7 +3,7 @@
 This repository contains a pytorch implementation of "[SelfRecon: Self Reconstruction Your Digital Avatar from Monocular Video (CVPR 2022, Oral)](https://arxiv.org/abs/2201.12792)".<br/>
 Authors: Boyi Jiang, [Yang Hong](https://crishy1995.github.io/), [Hujun Bao](http://www.cad.zju.edu.cn/home/bao/), [Juyong Zhang](http://staff.ustc.edu.cn/~juyong/).
 
-This code is protected under patent. It can be only used for research purposes. 
+This code is protected under patent. It can only be used for research purposes.
 ![](asset/avatars.png)
 ## Requirements
 - Python 3
