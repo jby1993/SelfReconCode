@@ -56,6 +56,20 @@ Run the following code to generate rendered meshes and images.
 CUDA_VISIBLE_DEVICES=0 python infer.py --gpu-ids 0 --rec-root $ROOT/female-3-casual/result/ --C
 ```
 
+## Texture
+This repo provides a script to utilize [VideoAvatar](https://graphics.tu-bs.de/people-snapshot) to extract the texture for the reconstructions of SelfRecon. 
+
+First, You need to install VideoAvatar and copy texture_mesh_extract.py to its repository path.
+
+Then, after performing inference for $ROOT/female-3-casual/result, you need to simplify and parameterize the template mesh tmp.ply yourself, then save the result mesh as $ROOT/female-3-casual/result/template/uvmap.obj. And run the following code to generate the data for texture extraction:
+``` bash
+CUDA_VISIBLE_DEVICES=0 python texture_mesh_prepare.py --gpu-ids 0 --num 120 --rec-root $ROOT/female-3-casual/result/
+```
+
+Finally, go to VideoAvatar path, and run the following code to extract texture:
+```bash
+CUDA_VISIBLE_DEVICES=0 python texture_mesh_extract.py --tmp-root $ROOT/female-3-casual/result/template
+```
 ## Dataset
 The processed dataset, our trained models, some reconstruction results and textured meshes can be downloaded via the [link](https://mailustceducn-my.sharepoint.com/:f:/g/personal/jby1993_mail_ustc_edu_cn/EsSsDtUBYJVLvY21Wk2K_gQBuOWgCKFGGxr2xqheS-0ORw?e=Rda2HX), you can download and unzip some smartphone data, like CHH_female.zip, in $ROOT, and train directly with:
 ```bash
@@ -74,7 +88,7 @@ Note: If you want to train the synthetic data, config_loose.conf is prefered.
 Here are some great resources we benefit or utilize from:
 - [MarchingCubes_CppCuda](https://github.com/WanquanF/MarchingCubes_CppCuda) supplies the GPU MC module (MCGpu)
 - [MonoPort](https://github.com/Project-Splinter/MonoPort) and [ImplicitSegCUDA](https://github.com/Project-Splinter/ImplicitSegCUDA/tree/master/implicit_seg/cuda) constructed our Marching Cubes accelerating (MCAcc)
-- [VideoAvatar](https://graphics.tu-bs.de/people-snapshot) for SMPL initialization
+- [VideoAvatar](https://graphics.tu-bs.de/people-snapshot) for SMPL initialization and texture extraction
 - [SMPL](https://smpl.is.tue.mpg.de/) for Parametric Body Representation
 - [IDR](https://github.com/lioryariv/idr) for Neural Implicit Reconstruction
 - [PyTorch3D](https://github.com/facebookresearch/pytorch3d) for Differential Explicit Rendering
