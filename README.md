@@ -114,4 +114,4 @@ This research was supported by National Natural Science Foundation of China (No.
 
 
 ## License
-Academic or non-profit organization noncommercial research use only.
+For non-commercial research use only.
